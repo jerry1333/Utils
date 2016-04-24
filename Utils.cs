@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,21 +16,21 @@ namespace Jerry1333.Libs
             return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
 
-        public static string FormatAdres(string miejscowosc, string kod, string poczta, string ulica, string dom)
+        public static string FormatAdress(string city, string postalCode, string postalCity, string street, string house)
         {
             try
             {
-                string adres = ulica.IsNullOrEmpty() ? $"{miejscowosc} {dom}, " : $"ul. {ulica} {dom}, ";
-                if (miejscowosc != poczta)
-                    adres += $"{miejscowosc}, ";
+                string adres = street.IsNullOrEmpty() ? $"{city} {house}, " : $"ul. {street} {house}, ";
+                if (city != postalCity)
+                    adres += $"{city}, ";
 
-                adres += $"{kod} {poczta}";
+                adres += $"{postalCode.FormatPostalCode()} {postalCity}";
 
                 return adres;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
         static public bool RegonValidate(string regonVal)
@@ -77,9 +78,9 @@ namespace Jerry1333.Libs
 
                 return (checksum % 11 % 10).Equals(digits[digits.Length - 1]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
         static public string Regon14zn(string regon)
@@ -91,9 +92,9 @@ namespace Jerry1333.Libs
                 else if (regon.Length == 14) return regon;
                 else return null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
         static public bool NipValidate(string nipVal)
@@ -129,9 +130,9 @@ namespace Jerry1333.Libs
                     return (checksum % 11 % 10).Equals(digits[digits.Length - 1]);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
 
@@ -144,24 +145,38 @@ namespace Jerry1333.Libs
                 var rgx = new Regex("[^0-9]");
                 return rgx.Replace(text, "");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
 
-        public static bool IsNullOrEmpty(this string tekst)
+        static public string RemoveNonAplhaNumbers(this string text)
         {
             try
             {
-                if (string.IsNullOrEmpty(tekst) || tekst.Length == 0) return true;
-                return false;
+                var rgx = new Regex("[^a-zA-Z0-9]");
+                return rgx.Replace(text, "");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
+
+        public static bool IsNullOrEmpty(this string text)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(text) || text.Length == 0) return true;
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public static string FormatNip(this string nip)
         {
             try
@@ -169,22 +184,52 @@ namespace Jerry1333.Libs
                 nip = nip.RemoveNonNumbers();
                 return nip.Length == 10 ? $"{nip.Substring(0, 3)}-{nip.Substring(3, 3)}-{nip.Substring(6, 2)}-{nip.Substring(8, 2)}" : null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
-        public static string FormatKodPocztowy(this string kod)
+
+        public static string FormatPostalCode(this string code)
         {
             try
             {
-                kod = kod.RemoveNonNumbers();
-                return kod.Length == 5 ? $"{kod.Substring(0, 2)}-{kod.Substring(2)}" : null;
+                code = code.RemoveNonNumbers();
+                return code.Length == 5 ? $"{code.Substring(0, 2)}-{code.Substring(2)}" : null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
+        }
+
+        public static string[] SplitWithCheckSeparator(this string line, char separator, char checkSeparator, bool eraseCheckSeparator)
+        {
+            var separatorsIndexes = new List<int>();
+            bool open = false;
+
+            for (var i = 0; i < line.Length; i++)
+            {
+                if (line[i] == checkSeparator)
+                    open = !open;
+                if (!open && line[i] == separator)
+                    separatorsIndexes.Add(i);
+            }
+
+            separatorsIndexes.Add(line.Length);
+
+            var result = new string[separatorsIndexes.Count];
+
+            int first = 0;
+
+            for (var j = 0; j < separatorsIndexes.Count; j++)
+            {
+                string tempLine = line.Substring(first, separatorsIndexes[j] - first);
+                result[j] = eraseCheckSeparator ? tempLine.Replace(checkSeparator, ' ').Trim() : tempLine;
+                first = separatorsIndexes[j] + 1;
+            }
+
+            return result;
         }
         #endregion
     }
