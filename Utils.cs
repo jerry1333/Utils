@@ -15,7 +15,7 @@ namespace Jerry1333.Libs
         {
             if (encoding == null) encoding = Encoding.UTF8;
             var sha1 = new SHA1CryptoServiceProvider();
-            byte[] hash = sha1.ComputeHash(encoding.GetBytes(hashStr));
+            var hash = sha1.ComputeHash(encoding.GetBytes(hashStr));
             return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
 
@@ -23,7 +23,7 @@ namespace Jerry1333.Libs
         {
             try
             {
-                string adres = street.IsNullOrEmpty() ? $"{city} {house}, " : $"ul. {street} {house}, ";
+                var adres = street.IsNullOrEmpty() ? $"{city} {house}, " : $"ul. {street} {house}, ";
                 if (city != postalCity)
                     adres += $"{city}, ";
 
@@ -36,102 +36,102 @@ namespace Jerry1333.Libs
                 throw;
             }
         }
-        static public bool RegonValidate(string regonVal)
+
+        public static bool RegonValidate(string regonVal)
         {
             try
             {
                 byte[] weights;
-                ulong regon = ulong.MinValue;
-                byte[] digits;
+                ulong regon;
 
                 if (ulong.TryParse(regonVal, out regon).Equals(false)) return false;
 
                 switch (regonVal.Length)
                 {
                     case 7:
-                        weights = new byte[] { 2, 3, 4, 5, 6, 7 };
+                        weights = new byte[] {2, 3, 4, 5, 6, 7};
                         break;
 
                     case 9:
-                        weights = new byte[] { 8, 9, 2, 3, 4, 5, 6, 7 };
+                        weights = new byte[] {8, 9, 2, 3, 4, 5, 6, 7};
                         break;
 
                     case 14:
-                        weights = new byte[] { 2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8 };
+                        weights = new byte[] {2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8};
                         break;
 
                     default:
                         return false;
                 }
 
-                string sRegon = regon.ToString();
-                digits = new byte[sRegon.Length];
+                var sRegon = regon.ToString();
+                var digits = new byte[sRegon.Length];
 
-                for (int i = 0; i < sRegon.Length; i++)
+                for (var i = 0; i < sRegon.Length; i++)
                 {
                     if (byte.TryParse(sRegon[i].ToString(), out digits[i]).Equals(false)) return false;
                 }
 
-                int checksum = 0;
+                var checksum = 0;
 
-                for (int i = 0; i < weights.Length; i++)
+                for (var i = 0; i < weights.Length; i++)
                 {
-                    checksum += weights[i] * digits[i];
+                    checksum += weights[i]*digits[i];
                 }
 
-                return (checksum % 11 % 10).Equals(digits[digits.Length - 1]);
+                return (checksum%11%10).Equals(digits[digits.Length - 1]);
             }
             catch (Exception)
             {
                 throw;
             }
         }
-        static public string Regon14zn(string regon)
+
+        public static string Regon14zn(string regon)
         {
             try
             {
                 regon = regon.RemoveNonNumbers();
                 if (regon.Length == 9) return regon + "00000";
-                else if (regon.Length == 14) return regon;
-                else return null;
+                if (regon.Length == 14) return regon;
+                return null;
             }
             catch (Exception)
             {
                 throw;
             }
         }
-        static public bool NipValidate(string nipVal)
+
+        public static bool NipValidate(string nipVal)
         {
             try
             {
-                const byte Lenght = 10;
+                const byte lenght = 10;
 
-                ulong nip = ulong.MinValue;
-                byte[] digits;
-                var weights = new byte[] { 6, 5, 7, 2, 3, 4, 5, 6, 7 };
+                ulong nip;
+                var weights = new byte[] {6, 5, 7, 2, 3, 4, 5, 6, 7};
 
-                if (nipVal.Length.Equals(Lenght).Equals(false)) return false;
+                if (nipVal.Length.Equals(lenght).Equals(false)) return false;
 
                 if (ulong.TryParse(nipVal, out nip).Equals(false)) return false;
-                else
+
+
+                var sNip = nipVal;
+                var digits = new byte[lenght];
+
+                for (var i = 0; i < lenght; i++)
                 {
-                    string sNip = nipVal.ToString();
-                    digits = new byte[Lenght];
-
-                    for (int i = 0; i < Lenght; i++)
-                    {
-                        if (byte.TryParse(sNip[i].ToString(), out digits[i]).Equals(false)) return false;
-                    }
-
-                    int checksum = 0;
-
-                    for (int i = 0; i < Lenght - 1; i++)
-                    {
-                        checksum += digits[i] * weights[i];
-                    }
-
-                    return (checksum % 11 % 10).Equals(digits[digits.Length - 1]);
+                    if (byte.TryParse(sNip[i].ToString(), out digits[i]).Equals(false)) return false;
                 }
+
+                var checksum = 0;
+
+                for (var i = 0; i < lenght - 1; i++)
+                {
+                    checksum += digits[i]*weights[i];
+                }
+
+                return (checksum%11%10).Equals(digits[digits.Length - 1]);
             }
             catch (Exception)
             {
@@ -139,8 +139,53 @@ namespace Jerry1333.Libs
             }
         }
 
+        public static IEnumerable<Tuple<T, string>> GetValueDescriptionEnumerable<T>() where T : struct
+        {
+            if (!typeof(T).IsEnum) throw new InvalidOperationException();
+            foreach (T item in Enum.GetValues(typeof(T)))
+            {
+                var fi = typeof(T).GetField(item.ToString());
+                var attribute = fi.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
+                var description = attribute == null ? item.ToString() : attribute.Description;
+                yield return new Tuple<T, string>(item, description);
+            }
+        }
+
+        public static void PreserveStackTrace(Exception exception)
+        {
+            var preserveStackTrace = typeof(Exception).GetMethod("InternalPreserveStackTrace", BindingFlags.Instance | BindingFlags.NonPublic);
+            preserveStackTrace.Invoke(exception, null);
+        }
+
+        public static Version GetVersion(Type param)
+        {
+            return param.Assembly.GetName().Version;
+        }
+
+        public static bool VerifyRegEx(string testPattern)
+        {
+            var isValid = true;
+            if (!testPattern.IsNullOrEmpty())
+            {
+                try
+                {
+                    Regex.Match("", testPattern);
+                }
+                catch (Exception)
+                {
+                    isValid = false;
+                }
+            }
+            else
+            {
+                isValid = false;
+            }
+            return isValid;
+        }
+
         #region STRING EXTENSION
-        static public string RemoveNonNumbers(this string text)
+
+        public static string RemoveNonNumbers(this string text)
         {
             try
             {
@@ -152,7 +197,8 @@ namespace Jerry1333.Libs
                 throw;
             }
         }
-        static public string RemoveNonAplhaNumbers(this string text)
+
+        public static string RemoveNonAplhaNumbers(this string text)
         {
             try
             {
@@ -164,18 +210,48 @@ namespace Jerry1333.Libs
                 throw;
             }
         }
-        public static bool IsNullOrEmpty(this string text)
+
+        public static string RemoveNonAplha(this string text)
         {
             try
             {
-                if (string.IsNullOrEmpty(text) || text.Length == 0) return true;
-                return false;
+                var rgx = new Regex("[^a-zA-Z]");
+                return rgx.Replace(text, "");
             }
             catch (Exception)
             {
                 throw;
             }
         }
+
+        public static string RemoveRegexPattern(this string text, string pattern)
+        {
+            try
+            {
+                if (pattern.IsNullOrEmpty()) throw new ArgumentNullException(nameof(pattern));
+                if (!VerifyRegEx(pattern)) throw new ArgumentException(nameof(pattern));
+
+                var rgx = new Regex(pattern);
+                return rgx.Replace(text, "");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static bool IsNullOrEmpty(this string text)
+        {
+            try
+            {
+                return string.IsNullOrEmpty(text);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public static string FormatNip(this string nip)
         {
             try
@@ -188,6 +264,7 @@ namespace Jerry1333.Libs
                 throw;
             }
         }
+
         public static string FormatPostalCode(this string code)
         {
             try
@@ -200,10 +277,11 @@ namespace Jerry1333.Libs
                 throw;
             }
         }
+
         public static string[] SplitWithCheckSeparator(this string line, char separator, char checkSeparator, bool eraseCheckSeparator)
         {
             var separatorsIndexes = new List<int>();
-            bool open = false;
+            var open = false;
 
             for (var i = 0; i < line.Length; i++)
             {
@@ -217,40 +295,18 @@ namespace Jerry1333.Libs
 
             var result = new string[separatorsIndexes.Count];
 
-            int first = 0;
+            var first = 0;
 
             for (var j = 0; j < separatorsIndexes.Count; j++)
             {
-                string tempLine = line.Substring(first, separatorsIndexes[j] - first);
+                var tempLine = line.Substring(first, separatorsIndexes[j] - first);
                 result[j] = eraseCheckSeparator ? tempLine.Replace(checkSeparator, ' ').Trim() : tempLine;
                 first = separatorsIndexes[j] + 1;
             }
 
             return result;
         }
+
         #endregion
-
-        public static IEnumerable<Tuple<T, string>> GetValueDescriptionEnumerable<T>() where T : struct
-        {
-            if (!typeof(T).IsEnum) throw new InvalidOperationException();
-            foreach (T item in Enum.GetValues(typeof(T)))
-            {
-                var fi = typeof(T).GetField(item.ToString());
-                var attribute = fi.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault( ) as DescriptionAttribute;
-                var description = attribute == null ? item.ToString() : attribute.Description;
-                yield return new Tuple<T, string>(item, description);
-            }
-        }
-
-        public static void PreserveStackTrace(Exception exception)
-        {
-            MethodInfo preserveStackTrace = typeof(Exception).GetMethod("InternalPreserveStackTrace", BindingFlags.Instance | BindingFlags.NonPublic);
-            preserveStackTrace.Invoke(exception, null);
-        }
-
-        public static Version GetVersion(Type param)
-        {
-            return param.Assembly.GetName().Version;
-        }
     }
 }
