@@ -7,8 +7,8 @@
     <ProjectGuid>{514BF0E0-83E3-4AD2-8092-0C282125702F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jerry1333.Libs.Utils</RootNamespace>
-    <AssemblyName>Jerry1333.Libs.Utils</AssemblyName>
+    <RootNamespace>Jerry1333.Utils</RootNamespace>
+    <AssemblyName>Jerry1333.Utils</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -50,7 +50,13 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddressUtils.cs" />
+    <Compile Include="HashUtils.cs" />
+    <Compile Include="NipUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegexUtils.cs" />
+    <Compile Include="RegonUtils.cs" />
+    <Compile Include="StringUtils.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
