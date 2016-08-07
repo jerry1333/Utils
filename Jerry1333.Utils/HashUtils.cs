@@ -13,5 +13,13 @@ namespace Jerry1333.Utils
             var hash = sha1.ComputeHash(encoding.GetBytes(hashStr));
             return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
+
+        public static string Md5(string hashStr, Encoding encoding = null)
+        {
+            if (encoding == null) encoding = Encoding.UTF8;
+            var md5 = new MD5CryptoServiceProvider();
+            var hash = md5.ComputeHash(encoding.GetBytes(hashStr));
+            return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        }
     }
 }

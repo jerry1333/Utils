@@ -12,7 +12,7 @@ namespace Jerry1333.Utils
                 if (city != postalCity)
                     adres += $"{city}, ";
 
-                adres += $"{postalCode.FormatPostalCode()} {postalCity}";
+                adres += $"{FormatPostalCode(postalCode)} {postalCity}";
 
                 return adres;
             }
@@ -22,7 +22,7 @@ namespace Jerry1333.Utils
             }
         }
 
-        public static string FormatPostalCode(this string code)
+        public static string FormatPostalCode(string code)
         {
             try
             {
