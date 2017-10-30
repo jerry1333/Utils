@@ -17,28 +17,22 @@ namespace Jerry1333.Utils
             {
                 const byte lenght = 10;
 
-                ulong nip;
                 var weights = new byte[] {6, 5, 7, 2, 3, 4, 5, 6, 7};
 
-                if (nipVal.Length.Equals(lenght).Equals(false)) return false;
+                if (nipVal.Length != lenght) return false;
 
-                if (ulong.TryParse(nipVal, out nip).Equals(false)) return false;
-
+                if (ulong.TryParse(nipVal, out var nip).Equals(false)) return false;
 
                 var sNip = nipVal;
                 var digits = new byte[lenght];
 
                 for (var i = 0; i < lenght; i++)
-                {
-                    if (byte.TryParse(sNip[i].ToString(), out digits[i]).Equals(false)) return false;
-                }
+                    if (byte.TryParse(sNip[i].ToString(), out digits[i]).Equals(false))
+                        return false;
 
                 var checksum = 0;
 
-                for (var i = 0; i < lenght - 1; i++)
-                {
-                    checksum += digits[i] * weights[i];
-                }
+                for (var i = 0; i < lenght - 1; i++) checksum += digits[i] * weights[i];
 
                 return (checksum % 11 % 10).Equals(digits[digits.Length - 1]);
             }
@@ -52,9 +46,10 @@ namespace Jerry1333.Utils
         {
             try
             {
+                const byte lenght = 10;
                 nipVal = nipVal.RemoveNonNumbers();
 
-                if (nipVal.Length != 10) throw new ArgumentException(nameof(nipVal));
+                if (nipVal.Length != lenght) throw new ArgumentException(nameof(nipVal));
 
                 switch (format)
                 {
@@ -64,8 +59,7 @@ namespace Jerry1333.Utils
                     case NipFormat.Praw:
                         nipVal = $"{nipVal.Substring(0, 3)}-{nipVal.Substring(3, 2)}-{nipVal.Substring(5, 2)}-{nipVal.Substring(7, 3)}";
                         break;
-                    case NipFormat.Simple:
-                        break;
+                    case NipFormat.Simple: break;
                 }
                 return nipVal;
             }

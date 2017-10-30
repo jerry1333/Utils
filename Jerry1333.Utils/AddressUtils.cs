@@ -9,8 +9,7 @@ namespace Jerry1333.Utils
             try
             {
                 var adres = street.IsNullOrEmpty() ? $"{city} {house}, " : $"ul. {street} {house}, ";
-                if (city != postalCity)
-                    adres += $"{city}, ";
+                if (city != postalCity) adres += $"{city}, ";
 
                 adres += $"{FormatPostalCode(postalCode)} {postalCity}";
 

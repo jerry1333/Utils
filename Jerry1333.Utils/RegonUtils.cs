@@ -9,42 +9,34 @@ namespace Jerry1333.Utils
             try
             {
                 byte[] weights;
-                ulong regon;
 
-                if (ulong.TryParse(regonVal, out regon).Equals(false)) return false;
+                if (ulong.TryParse(regonVal, out var regon).Equals(false)) return false;
 
                 switch (regonVal.Length)
                 {
                     case 7:
-                        weights = new byte[] { 2, 3, 4, 5, 6, 7 };
+                        weights = new byte[] {2, 3, 4, 5, 6, 7};
                         break;
-
                     case 9:
-                        weights = new byte[] { 8, 9, 2, 3, 4, 5, 6, 7 };
+                        weights = new byte[] {8, 9, 2, 3, 4, 5, 6, 7};
                         break;
-
                     case 14:
-                        weights = new byte[] { 2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8 };
+                        weights = new byte[] {2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8};
                         break;
-
-                    default:
-                        return false;
+                    default: return false;
                 }
 
                 var sRegon = regon.ToString();
                 var digits = new byte[sRegon.Length];
 
                 for (var i = 0; i < sRegon.Length; i++)
-                {
-                    if (byte.TryParse(sRegon[i].ToString(), out digits[i]).Equals(false)) return false;
-                }
+                    if (byte.TryParse(sRegon[i].ToString(), out digits[i]).Equals(false))
+                        return false;
 
                 var checksum = 0;
 
                 for (var i = 0; i < weights.Length; i++)
-                {
                     checksum += weights[i] * digits[i];
-                }
 
                 return (checksum % 11 % 10).Equals(digits[digits.Length - 1]);
             }

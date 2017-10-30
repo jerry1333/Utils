@@ -5,11 +5,10 @@ namespace Jerry1333.Utils
 {
     public static partial class Utils
     {
-        public static bool VerifyRegexPattern(string testPattern)
+        public static bool IsPatternValid(string testPattern)
         {
             var isValid = true;
             if (!testPattern.IsNullOrEmpty())
-            {
                 try
                 {
                     Regex.Match("", testPattern);
@@ -18,11 +17,8 @@ namespace Jerry1333.Utils
                 {
                     isValid = false;
                 }
-            }
             else
-            {
                 isValid = false;
-            }
             return isValid;
         }
 
@@ -70,7 +66,7 @@ namespace Jerry1333.Utils
             try
             {
                 if (pattern.IsNullOrEmpty()) throw new ArgumentNullException(nameof(pattern));
-                if (!VerifyRegexPattern(pattern)) throw new ArgumentException(nameof(pattern));
+                if (!IsPatternValid(pattern)) throw new ArgumentException(nameof(pattern));
 
                 var rgx = new Regex(pattern);
                 return rgx.Replace(text, "");
